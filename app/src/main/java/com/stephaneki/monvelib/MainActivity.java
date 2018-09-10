@@ -12,12 +12,18 @@ import android.view.MenuItem;
 import com.stephaneki.monvelib.fragments.FavoritesFragment;
 import com.stephaneki.monvelib.fragments.MapsFragment;
 import com.stephaneki.monvelib.fragments.ProfileFragment;
+import com.stephaneki.monvelib.services.JcDecauxAPIservices;
+
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements FavoritesFragment.OnFavoritesFragmentInteractionListener
         , MapsFragment.OnMapsFragmentInteractionListener
         , ProfileFragment.OnProfileFragmentInteractionListener {
 
+    private Retrofit velibRetrofit;
+    private Retrofit backOfficeRetrofit;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -55,7 +61,7 @@ public class MainActivity extends AppCompatActivity
 
     private void replaceFragment(Fragment fragment, String tag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.menu_fragments_containers, fragment);
+        transaction.replace(R.id.menu_fragments_containers, fragment, tag);
         transaction.addToBackStack(null);
         transaction.commit();
     }
@@ -82,6 +88,12 @@ public class MainActivity extends AppCompatActivity
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        velibRetrofit = new Retrofit.Builder()
+                .baseUrl(JcDecauxAPIservices.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        
     }
 
     @Override
