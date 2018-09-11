@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity
                 .baseUrl(JcDecauxAPIservices.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        
+
     }
 
     @Override

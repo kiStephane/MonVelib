@@ -5,5 +5,5 @@ package com.stephaneki.monvelib.services;
  */
 public interface JcDecauxAPIservices {
 
-    public static final String BASE_URL = "http://api.nuuneoi.com/base/";
+    public static final String BASE_URL = "https://api.jcdecaux.com/vls/v1/";
 }
