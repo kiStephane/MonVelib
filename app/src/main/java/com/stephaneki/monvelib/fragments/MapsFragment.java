@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,17 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.maps.SupportMapFragment;
 import com.stephaneki.monvelib.R;
+import com.stephaneki.monvelib.modele.PreferenceHelper;
+import com.stephaneki.monvelib.modele.jcDecaux.Station;
+import com.stephaneki.monvelib.services.JcDecauxAPIservices;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 /**
@@ -36,6 +48,8 @@ public class MapsFragment extends Fragment {
     private String mParam2;
 
     private OnMapsFragmentInteractionListener mListener;
+
+    private List<Station> jcDecauxStations;
 
     public MapsFragment() {
         // Required empty public constructor
@@ -66,6 +80,35 @@ public class MapsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Retrofit jcDecauxRetrofit = new Retrofit.Builder()
+                .baseUrl(JcDecauxAPIservices.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        String contractName = PreferenceHelper.getUserSelectedContract(getActivity());
+        if (contractName != null)
+            jcDecauxRetrofit.create(JcDecauxAPIservices.class).getContractStations(contractName, getString(R.string.JCDECAUX_API_KEY)).enqueue(new Callback<List<Station>>() {
+                @Override
+                public void onResponse(@NonNull Call<List<Station>> call, @NonNull Response<List<Station>> response) {
+                    if (response.isSuccessful()) {
+                        jcDecauxStations = response.body();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<List<Station>> call, @NonNull Throwable t) {
+
+                }
+            });
+
     }
 
     @Override

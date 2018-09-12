@@ -12,17 +12,27 @@ import android.view.MenuItem;
 import com.stephaneki.monvelib.fragments.FavoritesFragment;
 import com.stephaneki.monvelib.fragments.MapsFragment;
 import com.stephaneki.monvelib.fragments.ProfileFragment;
+import com.stephaneki.monvelib.modele.PreferenceHelper;
+import com.stephaneki.monvelib.modele.jcDecaux.Contract;
 import com.stephaneki.monvelib.services.JcDecauxAPIservices;
 
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements FavoritesFragment.OnFavoritesFragmentInteractionListener
         , MapsFragment.OnMapsFragmentInteractionListener
-        , ProfileFragment.OnProfileFragmentInteractionListener {
+        , ProfileFragment.OnProfileFragmentInteractionListener, Callback<List<Contract>> {
 
-    private Retrofit velibRetrofit;
+    private JcDecauxAPIservices mJcDecauxAPIservices;
+
+    private List<Contract> jcDecauxContracts;
+
+
     private Retrofit backOfficeRetrofit;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -89,11 +99,16 @@ public class MainActivity extends AppCompatActivity
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        velibRetrofit = new Retrofit.Builder()
+        /*Retrofit jcDecauxRetrofit = new Retrofit.Builder()
                 .baseUrl(JcDecauxAPIservices.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+        mJcDecauxAPIservices = jcDecauxRetrofit.create(JcDecauxAPIservices.class);
+        mJcDecauxAPIservices.getContracts(getString(R.string.JCDECAUX_API_KEY)).enqueue(this);*/
+
+        //TODO pour les tests
+        PreferenceHelper.saveUserSelectedContract(this, "Lyon");
     }
 
     @Override
@@ -102,4 +117,15 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onResponse(@NonNull Call<List<Contract>> call, @NonNull Response<List<Contract>> response) {
+        if(response.isSuccessful()){
+            jcDecauxContracts = response.body();
+        }
+    }
+
+    @Override
+    public void onFailure(@NonNull Call<List<Contract>> call, @NonNull Throwable t) {
+
+    }
 }
