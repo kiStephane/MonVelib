@@ -1,14 +1,28 @@
-package com.stephaneki.monvelib.fragments;
+package com.stephaneki.monvelib.fragments.profile;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.stephaneki.monvelib.R;
+import com.stephaneki.monvelib.modele.PreferenceHelper;
+import com.stephaneki.monvelib.modele.jcDecaux.Contract;
+import com.stephaneki.monvelib.services.JcDecauxAPIservices;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -18,7 +32,7 @@ import com.stephaneki.monvelib.R;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements Callback<List<Contract>> {
     public static final String TAG = ProfileFragment.class.getName();
 
     // TODO: Rename parameter arguments, choose names that match
@@ -31,6 +45,9 @@ public class ProfileFragment extends Fragment {
     private String mParam2;
 
     private OnProfileFragmentInteractionListener mListener;
+
+    private ContractsAdapter mContractsAdapter;
+    private RecyclerView mContractRecyclerView;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -64,10 +81,25 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Retrofit jcDecauxRetrofit = new Retrofit.Builder()
+                .baseUrl(JcDecauxAPIservices.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        JcDecauxAPIservices service = jcDecauxRetrofit.create(JcDecauxAPIservices.class);
+        service.getContracts(getString(R.string.JCDECAUX_API_KEY)).enqueue(this);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        View v = inflater.inflate(R.layout.fragment_profile, container, false);
+        mContractRecyclerView = v.findViewById(R.id.contract_list);
+        return v;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -92,6 +124,20 @@ public class ProfileFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onResponse(@NonNull Call<List<Contract>> call, @NonNull Response<List<Contract>> response) {
+        if (response.isSuccessful()) {
+            String selectedContract = PreferenceHelper.getUserSelectedContract(getContext());
+            mContractsAdapter = new ContractsAdapter(response.body(), selectedContract);
+            mContractRecyclerView.setAdapter(mContractsAdapter);
+        }
+    }
+
+    @Override
+    public void onFailure(@NonNull Call<List<Contract>> call, @NonNull Throwable t) {
+
     }
 
     /**

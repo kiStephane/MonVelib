@@ -9,9 +9,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import com.stephaneki.monvelib.fragments.FavoritesFragment;
+import com.stephaneki.monvelib.fragments.favorites.FavoritesFragment;
 import com.stephaneki.monvelib.fragments.MapsFragment;
-import com.stephaneki.monvelib.fragments.ProfileFragment;
+import com.stephaneki.monvelib.fragments.profile.ProfileFragment;
 import com.stephaneki.monvelib.modele.PreferenceHelper;
 import com.stephaneki.monvelib.modele.jcDecaux.Contract;
 import com.stephaneki.monvelib.services.JcDecauxAPIservices;
